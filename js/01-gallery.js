@@ -1,33 +1,40 @@
-import { galleryItems } from './gallery-items.js';
+import { galleryItems } from "./gallery-items.js";
 // Change code below this line
-const gallery = document.querySelector(".gallery")
+const gallery = document.querySelector(".gallery");
+gallery.insertAdjacentHTML("beforeend", galleryAllImages(galleryItems));
 
-const images = galleryItems
-  .map(
-    (item) =>
-      `<div class = "gallery__item">
-            <a class = "gallery__link" href="${item.original}">
-            <img class = "gallery__image" src="${item.preview} "data-source="${item.original}" alt="${item.description}"/>
-            </a></div>`
-  )
-  .join("");
-  console.log(galleryItems);
-gallery.insertAdjacentHTML("beforeend", images);
-const galleryAllImages = document.querySelectorAll(".gallery__image");
-galleryAllImages.forEach((item) => {
-  item.addEventListener("click", (event) => {
-    event.preventDefault();
+function galleryAllImages(img) {
+  return img
+    .map(({ preview, original, description }) => {
+      return `<div class="gallery__item">
+                    <a class="gallery__link" href=${original}>
+                         <img class="gallery__image"
+                          src=${preview}
+                          data-source=${original}
+                          alt=${description} />
+                    </a>
+                    </div>`;
+    })
+    .join("");
+}
 
-    const modal = basicLightbox.create(
-      `<img src="${item.dataset.source}" alt="${item.alt}">`
-    );
-    modal.show();
+function selectImage(event) {
+  event.preventDefault();
+  if (event.target.nodeName !== "IMG") {
+    return;
+  }
+  galleryItems.forEach((item) => {
+    const modal = basicLightbox.create(`<img src=${item.original}>`);
+    if (event.target.src === item.preview) {
+      modal.show();
+    }
     if (modal.visible() === true) {
-      document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
           modal.close();
         }
       });
     }
   });
-});
+}
+gallery.addEventListener("click", selectImage);
